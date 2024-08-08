@@ -5,6 +5,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { md5 } from 'src/utils';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
 export class UserService {
@@ -64,6 +65,7 @@ export class UserService {
     }
   }
 
+  // 登录
   async login(user: LoginUserDto) {
     
     const foundUser = await this.prismaService.user.findUnique({
@@ -82,5 +84,57 @@ export class UserService {
 
     delete foundUser.password
     return foundUser
+  }
+
+  // 查询信息
+  async findUserById(id: number) {
+    const user = this.prismaService.user.findUnique({
+      where: {
+        id
+      },
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        email: true,
+        headPic: true,
+        createdAt: true
+      }
+    })
+    return user
+  }
+
+  async updatePassword(passwordDto: UpdateUserPasswordDto) {
+    const captcha = await this.redisService.get(`update_password_captcha_${passwordDto.email}`)
+
+    if(!captcha) {
+      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST)
+    }
+
+    if(passwordDto.captcha !== captcha) {
+      throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST)
+    }
+
+    const foundUser = await this.prismaService.user.findUnique({
+      where: {
+        username: passwordDto.username
+      }
+    })
+
+    foundUser.password = passwordDto.password
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: foundUser.id
+        },
+        data: foundUser
+      })
+      return "密码修改成功"
+    } catch(e) {
+      this.logger.error(e, UserService)
+      throw new HttpException('修改失败', HttpStatus.BAD_REQUEST)
+    }
+
   }
 }
