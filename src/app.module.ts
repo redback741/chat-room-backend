@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PrismaService } from './prisma/prisma.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { FriendshipModule } from './friendship/friendship.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthGuard } from './auth.guard';
         }
       }
     }),
+    FriendshipModule,
   ],
   controllers: [AppController],
   providers: [

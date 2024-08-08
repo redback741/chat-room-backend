@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { md5 } from 'src/utils';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
@@ -135,6 +135,6 @@ export class UserService {
       this.logger.error(e, UserService)
       throw new HttpException('修改失败', HttpStatus.BAD_REQUEST)
     }
-
   }
+
 }
