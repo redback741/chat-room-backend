@@ -84,5 +84,8 @@ export class UserController {
     return 'send success'
   }
 
-
+  @Get('upload-service')
+  async uploadService() {
+    return await this.userService.uploaddService();
+  }
 }
